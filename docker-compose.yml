@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+
+    tubedash-app:
+       build: .
+       restart: unless-stopped
+       ports:
+         - "8000:8000"
+       depends_on:
+         -  redis-cache
+       environment:
+         -  REDIS_HOST=redis-cache
+
+    redis-cache:
+       image: "redis:alpine"
+       restart:  unless-stopped
+       volumes:
+         - ./redis_data:/data
