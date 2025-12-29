@@ -19,8 +19,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh "docker build -t ${IMAGE_NAME}:${env.BRANCH_NAME}"
-                    sh "docker build -t ${IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                    sh "docker build -t ${IMAGE_NAME}:${env.BRANCH_NAME} . "
+                    sh "docker build -t ${IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER} . "
                 }
             }
         }
