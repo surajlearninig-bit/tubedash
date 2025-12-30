@@ -39,7 +39,7 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy') {-
             steps {
                 script {
 
@@ -52,7 +52,7 @@ pipeline {
                         echo "Deploying to Production Environment (Remote via SSH)...."
                         sshagent (['prod-server-key'])
                         {
-                            sh """ ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && APP_PORT=8000 docker compose up -d --pull always ' """
+                            sh """ ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && export IMAGE_NAME=${IMAGE_NAME} && export BRANCH=${BRANCH} && APP_PORT=8000 docker compose up -d --pull always ' """
                         }
                     }
                 }
