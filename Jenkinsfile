@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
+        BRANCH = "${env.GIT_BRANCH.split('/').last()}"
         DOCKER_USER = 'surajlearn'
         IMAGE_NAME = "${DOCKER_USER}/tubedash-app"
-        APP_PORT = "${env.BRANCH_NAME == 'main' ? '8000' : '8001' }"
+        APP_PORT = "${BRANCH== 'main' ? '8000' : '8001' }"
         PROD_PATH = "/home/robo/production/tubedash"        
     }
 
@@ -19,8 +20,8 @@ pipeline {
         stage('Build') {
             steps {
                 script {
-                    sh "docker build -t ${IMAGE_NAME}:${env.BRANCH_NAME} . "
-                    sh "docker build -t ${IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER} . "
+                    sh "docker build -t ${IMAGE_NAME}:${BRANCH} . "
+                    sh "docker build -t ${IMAGE_NAME}:${BRANCH}-${env.BUILD_NUMBER} . "
                 }
             }
         }
@@ -31,8 +32,8 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-cred', passwordVariable: 'DOCKER_PASS', usernameVariable: 'DOCKER_USER')]) 
                     {
                         sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
-                        sh "docker push ${IMAGE_NAME}:${env.BRANCH_NAME}"
-                        sh "docker push ${IMAGE_NAME}:${env.BRANCH_NAME}-${env.BUILD_NUMBER}"
+                        sh "docker push ${IMAGE_NAME}:${BRANCH}"
+                        sh "docker push ${IMAGE_NAME}:${BRANCH}-${env.BUILD_NUMBER}"
                     }
                 }
             }
@@ -43,11 +44,11 @@ pipeline {
                 script {
 
                     sh "ls -R"
-                    if (env.BRANCH_NAME == 'dev') {
+                    if (BRANCH == 'dev') {
                         echo "Deploying to Testing Enviroment (Local)....."
                         sh "docker compose up -d --pull always"
                     }
-                    else if (env.BRANCH_NAME == 'main') {
+                    else if (BRANCH == 'main') {
                         echo "Deploying to Production Environment (Remote via SSH)...."
                         sshagent (['prod-server-key'])
                         {
