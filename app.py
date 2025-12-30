@@ -61,6 +61,10 @@ async def home(request: Request):
 # Route for login
 @app.get("/login")
 async def login(request: Request, user: str, response: RedirectResponse):
+    # Ensure that the user is provided, otherwise handle error or show a default form
+    if not user:
+        return templates.TemplateResponse("login.html", {"request": request})  # Custom login page
+
     # Save user in Redis (session management)
     response = RedirectResponse(url="/")
     response.set_cookie(key="user", value=user)
