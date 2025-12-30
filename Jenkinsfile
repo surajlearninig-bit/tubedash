@@ -41,9 +41,11 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
+
+                    sh "ls -R"
                     if (env.BRANCH_NAME == 'dev') {
                         echo "Deploying to Testing Enviroment (Local)....."
-                        sh "docker compose up -d --pull always"
+                        sh "cd tubedash-testing && docker compose up -d --pull always"
                     }
                     else if (env.BRANCH_NAME == 'main') {
                         echo "Deploying to Production Environment (Remote via SSH)...."
