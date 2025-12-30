@@ -46,13 +46,13 @@ pipeline {
                     sh "ls -R"
                     if (BRANCH == 'dev') {
                         echo "Deploying to Testing Enviroment (Local)....."
-                        sh "docker compose up -d --pull always"
+                        sh "APP_PORT=8001 docker compose up -d --pull always"
                     }
                     else if (BRANCH == 'main') {
                         echo "Deploying to Production Environment (Remote via SSH)...."
                         sshagent (['prod-server-key'])
                         {
-                            sh """ ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && docker compose up -d --pull always ' """
+                            sh """ ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && APP_PORT=8000 docker compose up -d --pull always ' """
                         }
                     }
                 }
