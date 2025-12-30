@@ -9,11 +9,25 @@ services:
          - "${APP_PORT}:8000"
        depends_on:
          -  redis-cache
+         -  postgres-db
        environment:
-         -  REDIS_HOST=redis-cache
+         -  REDIS_HOST=${REDIS_HOST}
+         - DATABASE_URL=${DATABASE_URL}
 
     redis-cache:
        image: "redis:alpine"
        restart:  unless-stopped
        volumes:
          - ./redis_data:/data
+
+    postgres-db:
+        image: postgres:13 
+        restart: unless-stopped
+        environment:
+            POSTGRES_USER: user
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: tubedash
+        volumes:
+         - ./postgres_data:/var/lib/postgresql/data
+        ports:
+         - "5432:5432"

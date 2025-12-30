@@ -6,7 +6,9 @@ pipeline {
         DOCKER_USER = 'surajlearn'
         IMAGE_NAME = "${DOCKER_USER}/tubedash-app"
         APP_PORT = "${BRANCH== 'main' ? '8000' : '8001' }"
-        PROD_PATH = "/home/robo/production/tubedash"        
+        PROD_PATH = "/home/robo/production/tubedash" 
+        REDIS_HOST = 'redis-cache'
+        DATABASE_URL = "postgresql://user:password@postgres-db:5432/tubedash"        
     }
 
     stages {
