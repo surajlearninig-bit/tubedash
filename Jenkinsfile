@@ -45,7 +45,7 @@ pipeline {
             steps {
                 script {
 
-                    sh "ls -R"
+                   // sh "ls -R"
                     if (BRANCH == 'dev') {
                         echo "Deploying to Testing Enviroment (Local)....."
                         sh "APP_PORT=8001 docker compose up -d --pull always"
