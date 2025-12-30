@@ -3,7 +3,7 @@
 services:
 
     tubedash-app:
-       build: ${IMAGE_NAME}:${BRANCH}
+       build: ${IMAGE_NAME}:${BRANCH} .
        restart: unless-stopped
        ports:
          - "${APP_PORT}:8000"
