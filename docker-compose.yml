@@ -14,6 +14,8 @@ services:
        environment:
          -  REDIS_HOST=${REDIS_HOST}
          -  DATABASE_URL=${DATABASE_URL}
+       deploy:
+            replicas: 3
 
     redis-cache:
        image: "redis:alpine"
