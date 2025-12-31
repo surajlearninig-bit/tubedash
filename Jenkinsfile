@@ -6,6 +6,7 @@ pipeline {
         DOCKER_USER = 'surajlearn'
         IMAGE_NAME = "${DOCKER_USER}/tubedash-app"
         APP_PORT = "${BRANCH== 'main' ? '8000' : '8001' }"
+        DB_PORT = "${BRANCH== 'main' ? '5431' : 5432'}"
         PROD_PATH = "/home/robo/production/tubedash" 
         REDIS_HOST = 'redis-cache'
         DATABASE_URL = "postgresql://user:password@postgres-db:5432/tubedash"        
@@ -48,13 +49,13 @@ pipeline {
                    // sh "ls -R"
                     if (BRANCH == 'dev') {
                         echo "Deploying to Testing Enviroment (Local)....."
-                        sh "APP_PORT=8001 docker compose up -d --pull always"
+                        sh "APP_PORT=8001 DB_PORT=5432 docker compose up -d --pull always"
                     }
                     else if (BRANCH == 'main') {
                         echo "Deploying to Production Environment (Remote via SSH)...."
                         sshagent (['prod-server-key'])
                         {
-                            sh """ ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && export IMAGE_NAME=${IMAGE_NAME} && export BRANCH=${BRANCH} && APP_PORT=8000 docker compose up -d --pull always ' """
+                            sh """ ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && export IMAGE_NAME=${IMAGE_NAME} && export BRANCH=${BRANCH} && APP_PORT=8000 DB_PORT=5432 docker compose up -d --pull always ' """
                         }
                     }
                 }
