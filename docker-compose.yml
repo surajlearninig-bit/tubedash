@@ -13,7 +13,7 @@ services:
          -  postgres-db
        environment:
          -  REDIS_HOST=${REDIS_HOST}
-         - DATABASE_URL=${DATABASE_URL}
+         -  DATABASE_URL=${DATABASE_URL}
 
     redis-cache:
        image: "redis:alpine"
