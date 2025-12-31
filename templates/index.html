@@ -2,11 +2,12 @@
 <html>
 <head>
     <link rel="stylesheet" href="/static/style.css">
-    <title>TubeDash - Search</title>
+    <title>TubeDash</title>
 </head>
 <body>
     <div class="container">
-        <h1>🎬 TubeDash   </h1>
+
+        <h1>🎬 TubeDash</h1>
         <form action="/search" method="get">
             <input type="text" name="q" placeholder="kuch toh likhpahle Videos...">
             <button type="submit">Search</button>
@@ -14,4 +15,35 @@
     </div>
 </body>
 
+        {% if user %}
+            <h1>Welcome, {{ user }}!</h1>
+            <form action="/search" method="get">
+                <input type="text" name="q" placeholder="Search for videos..." required>
+                <button type="submit">Search</button>
+            </form>
+
+            <h3>Search History:</h3>
+            <ul>
+                {% for search in search_history %}
+                    <li>{{ search }}</li>
+                {% endfor %}
+            </ul>
+
+            <h3>Watch History:</h3>
+            <ul>
+                {% for watch in watch_history %}
+                    <li>{{ watch }}</li>
+                {% endfor %}
+            </ul>
+
+            <a href="/logout">Logout</a>
+        {% else %}
+            <h1>🎬 TubeDash</h1>
+            <form action="/login" method="get">
+                <input type="text" name="user" placeholder="Enter Username" required>
+                <button type="submit">Login</button>
+            </form>
+        {% endif %}
+    </div>
+</body>
 </html>
