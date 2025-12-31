@@ -55,7 +55,7 @@ pipeline {
                         echo "Deploying to Production Environment (Remote via SSH)...."
                         sshagent (['prod-server-key'])
                         {
-                            sh """ ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && export IMAGE_NAME=${IMAGE_NAME} && export BRANCH=${BRANCH} && export APP_PORT=${APP_PORT} && export DB_PORT=${DB_PORT} && export DATABASE_URL=${DATABASE_URL} && export REDIS_HOST=${REDIS_HOST} docker compose up -d --pull always ' """
+                            sh """ ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && export IMAGE_NAME=${IMAGE_NAME} && export BRANCH=${BRANCH} && export APP_PORT=${APP_PORT} && export DB_PORT=${DB_PORT} && export DATABASE_URL=${DATABASE_URL} && export REDIS_HOST=${REDIS_HOST} && docker compose up -d --pull always ' """
                         }
                     }
                 }
