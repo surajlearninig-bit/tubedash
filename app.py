@@ -1,5 +1,6 @@
 import os
 import redis
+import time
 from fastapi import FastAPI, Request, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -57,14 +58,18 @@ async def home(request: Request):
         })
     else:
         return templates.TemplateResponse("index.html", {"request": request, "user": None})
+    
+@app.get("/stress")
+def stress_test():
+    start_time = time.time()
+    result = [x**2 for x in range(1000000)]
+    result.sort(reverse=True)
+    end_time = time.time()
+    return {"message": "Done", "time_taken": end_time - start_time}
 
 # Route for login
 @app.get("/login")
 async def login(request: Request, user: str, response: RedirectResponse):
-    # Ensure that the user is provided, otherwise handle error or show a default form
-    if not user:
-        return templates.TemplateResponse("login.html", {"request": request})  # Custom login page
-
     # Save user in Redis (session management)
     response = RedirectResponse(url="/")
     response.set_cookie(key="user", value=user)
