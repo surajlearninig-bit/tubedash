@@ -9,7 +9,8 @@ pipeline {
         DB_PORT =  "${BRANCH == 'main' ? '5431' : '5432'}"
         PROD_PATH = "/home/robo/production/tubedash" 
         REDIS_HOST = 'redis-cache'
-        DATABASE_URL = "postgresql://user:password@postgres-db:5432/tubedash"        
+        DATABASE_URL = "postgresql://user:password@postgres-db:5432/tubedash"
+        DEPLOY_URL = "${BRANCH == 'main' ? 'http://192.168.181.182:8000' : 'http://192.168.181.182:8001'}"       
     }
 
     stages {
@@ -46,7 +47,6 @@ pipeline {
             steps {
                 script {
 
-                   // sh "ls -R"
                     if (BRANCH == 'dev') {
                         echo "Deploying to Testing Enviroment (Local)....."
                         sh "APP_PORT=8001 DB_PORT=5432 docker compose up -d --pull always"
@@ -55,11 +55,47 @@ pipeline {
                         echo "Deploying to Production Environment (Remote via SSH)...."
                         sshagent (['prod-server-key'])
                         {
-                            sh """ ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && export IMAGE_NAME=${IMAGE_NAME} && export BRANCH=${BRANCH} && export APP_PORT=${APP_PORT} && export DB_PORT=${DB_PORT} && export DATABASE_URL=${DATABASE_URL} && export REDIS_HOST=${REDIS_HOST} && docker compose up -d --pull always ' """
+                            sh """ 
+                                   echo "IMAGE_NAME=${IMAGE_NAME}" > .env 
+                                   echo "BRANCH=${BRANCH}" >> .env 
+                                   echo "APP_PORT=${APP_PORT}" >> .env
+                                   echo "DB_PORT=${DB_PORT}" >> .env
+                                   echo "DATABASE_URL=${DATABASE_URL}" >> .env
+                                   echo "REDIS_HOST=${REDIS_HOST}" >> .env 
+                              """
+
+                            sh "scp -o StrictHostKeyChecking=no .env robo@localhost:${PROD_PATH}/.env"   
+                            sh "ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && docker compose up -d --pull always '"
                         }
                     }
                 }
             }
+        }
+    }
+
+    post { 
+        success {
+            emailext (
+                subject: "Build Success: ${currentBuild.fullDisplayName}",
+                body: """ 
+                     Build Status: SUCCESS
+                     Branch: ${BRANCH}
+                     Access your App here: ${DEPLOY_URL}
+                     Build URL: ${env.BUILD_URL}
+                """,
+                to: 'surajlearninig@gmail.com'
+            )
+        }
+        failure {
+             emailext (
+                subject: "Build Failed: ${currentBuild.fullDisplayName}",
+                body: """
+                     Build Status: FAILED
+                     Branch: ${BRANCH}
+                     Check logs here: ${env.BUILD_URL}
+                """,
+                to: 'surajlearninig@gmail.com'
+            )
         }
     }
 }

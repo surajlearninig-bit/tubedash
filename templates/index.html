@@ -1,46 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
     <title>TubeDash</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+
+    <div class="navbar">
+        <h1>🎬 TubeDash</h1>
+    </div>
+
     <div class="container">
 
         {% if user %}
-            <h1>🎬 TubeDash</h1>
-            <h2>Welcome, {{ user }}!</h2>
+            <h2>Welcome, <span>{{ user }}</span> 👋</h2>
 
-            <form action="/search" method="get">
-                <input type="text" name="q" placeholder="Search for videos..." required>
+            <form action="/search" method="get" class="search-box">
+                <input type="text" name="q" placeholder="Search videos..." required>
                 <button type="submit">Search</button>
             </form>
 
-            <h3>Search History:</h3>
-            <ul>
-                {% for search in search_history %}
-                    <li>{{ search }}</li>
-                {% endfor %}
-            </ul>
+            <div class="cards">
 
-            <h3>Watch History:</h3>
-            <ul>
-                {% for watch in watch_history %}
-                    <li>{{ watch }}</li>
-                {% endfor %}
-            </ul>
+                <div class="card">
+                    <h3>🔍 Search History</h3>
+                    <ul>
+                        {% for search in search_history %}
+                            <li>{{ search }}</li>
+                        {% else %}
+                            <li class="empty">No searches yet</li>
+                        {% endfor %}
+                    </ul>
+                </div>
 
-            <a href="/logout">Logout</a>
+                <div class="card">
+                    <h3>📺 Watch History</h3>
+                    <ul>
+                        {% for watch in watch_history %}
+                            <li>{{ watch }}</li>
+                        {% else %}
+                            <li class="empty">No videos watched</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+
+            <a href="/logout" class="logout-btn">Logout</a>
 
         {% else %}
-            <h1>🎬 TubeDash</h1>
-
-            <form action="/login" method="get">
-                <input type="text" name="user" placeholder="Enter Username" required>
-                <button type="submit">Login</button>
-            </form>
+            <div class="login-box">
+                <h2>Login to TubeDash</h2>
+                <form action="/login" method="get">
+                    <input type="text" name="user" placeholder="Enter Username" required>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
         {% endif %}
 
     </div>
+
 </body>
 </html>
