@@ -55,5 +55,5 @@ services:
       ports:
          - "9443:9443"
 
-    volumes:
-      portainer_data:
+volumes:
+  portainer_data:
