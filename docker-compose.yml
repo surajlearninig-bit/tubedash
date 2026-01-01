@@ -42,3 +42,17 @@ services:
          - ./postgres_data:/var/lib/postgresql/data
         ports:
          - "${DB_PORT}:5432"
+
+    portainer:
+        image: portainer/portainer-ce:latest
+        container_name: portainer
+        restart: unless-stopped
+        security_opt:
+         - no-new-privileges:true
+        volumes:
+         - portainer_data:/data
+        ports:
+         - "9443:9443"
+
+    volumes:
+       portainer_data:
