@@ -17,6 +17,7 @@ services:
 
     nginx-lb:
        image: nginx:latest
+       restart: unless-stopped
        ports:
          - "${APP_PORT}:80"
        volumes:
