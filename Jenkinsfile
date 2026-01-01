@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        COMPOSE_FILE =
         BRANCH = "${env.GIT_BRANCH.split('/').last()}"
         DOCKER_USER = 'surajlearn'
         IMAGE_NAME = "${DOCKER_USER}/tubedash-app"
