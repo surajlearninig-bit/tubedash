@@ -1,5 +1,3 @@
-
-
 services:
 
     tubedash-app:
@@ -13,7 +11,7 @@ services:
          -  REDIS_HOST=${REDIS_HOST}
          -  DATABASE_URL=${DATABASE_URL}
        deploy:
-            replicas: 3
+            replicas: 2
 
     nginx-lb:
        image: nginx:latest
@@ -42,18 +40,3 @@ services:
          - ./postgres_data:/var/lib/postgresql/data
         ports:
          - "${DB_PORT}:5432"
-
-    portainer:
-      image: portainer/portainer-ce:latest
-      container_name: portainer
-      restart: unless-stopped
-      security_opt:
-        - no-new-privileges:true
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
-        - portainer_data:/data
-      ports:
-         - "9443:9443"
-
-volumes:
-  portainer_data:

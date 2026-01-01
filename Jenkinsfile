@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        COMPOSE_FILE =
         BRANCH = "${env.GIT_BRANCH.split('/').last()}"
         DOCKER_USER = 'surajlearn'
         IMAGE_NAME = "${DOCKER_USER}/tubedash-app"
@@ -49,7 +50,7 @@ pipeline {
 
                     if (BRANCH == 'dev') {
                         echo "Deploying to Testing Enviroment (Local)....."
-                        sh "APP_PORT=8001 DB_PORT=5432 docker compose up -d --pull always"
+                        sh "APP_PORT=8001 DB_PORT=5432 docker compose -f docker-compose.dev.yml up -d --pull always"
                     }
                     else if (BRANCH == 'main') {
                         echo "Deploying to Production Environment (Remote via SSH)...."
@@ -65,7 +66,7 @@ pipeline {
                               """
 
                             sh "scp -o StrictHostKeyChecking=no .env robo@localhost:${PROD_PATH}/.env"   
-                            sh "ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && docker compose up -d --pull always '"
+                            sh "ssh -o StrictHostKeyChecking=no robo@localhost 'cd ${PROD_PATH} && git pull origin main && docker compose -f docker-compose.prod.yml up -d --pull always '"
                         }
                     }
                 }
