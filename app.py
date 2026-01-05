@@ -1,16 +1,21 @@
 import os
 import redis
 import time
-from fastapi import FastAPI, Request, Depends
+from datetime import datetime
+from fastapi import FastAPI, Request, Depends, status
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from models import User
 from database import SessionLocal, engine
 import uuid
 from sqlalchemy import create_engine
 from database import Base
+
+
+APP_START_TIME = time.time()
+
 
 # Initialize the FastAPI app
 app = FastAPI()
@@ -75,6 +80,58 @@ async def login(request: Request, user: str, response: RedirectResponse):
     response.set_cookie(key="user", value=user)
     return response
 
+@app.route("/health", methods=["GET"])
+def health_check():
+    """
+    Liveness probe.
+    Should be extremely light and always return healthy
+    unless the app process is completely broken.
+    """
+    return {
+        "status": "UP",
+        "service": "tubedash",
+        "uptime": f"{int(time.time() - start_time)}s"
+    }, 200
+
+@app.get("/health", status_code=200)
+def health_check():
+    """
+    Liveness probe.
+    Sirf process alive hai ya nahi batata hai.
+    No DB, no Redis, no heavy logic.
+    """
+    return {
+        "status": "UP",
+        "service": "tubedash",
+        "uptime_seconds": int(time.time() - APP_START_TIME),
+        "timestamp": datetime.utcnow().isoformat() + "Z"
+    }
+
+@app.get("/ready")
+def readiness_check():
+    """
+    Readiness probe.
+    Batata hai app traffic lene ke liye ready hai ya nahi.
+    """
+    try:
+        # Redis connectivity check (LIGHT check)
+        cache.ping()
+
+        return {
+            "status": "READY",
+            "timestamp": datetime.utcnow().isoformat() + "Z"
+        }
+
+    except redis.ConnectionError:
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={
+                "status": "NOT_READY",
+                "reason": "Redis not reachable"
+            }
+        )
+
+
 # Route for search functionality
 @app.get("/search")
 async def search(request: Request, q: str, db: Session = Depends(get_db)):
@@ -110,3 +167,4 @@ async def logout(request: Request, response: RedirectResponse):
     response = RedirectResponse(url="/")
     response.delete_cookie("user")
     return response
+
