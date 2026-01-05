@@ -80,19 +80,6 @@ async def login(request: Request, user: str, response: RedirectResponse):
     response.set_cookie(key="user", value=user)
     return response
 
-@app.route("/health", methods=["GET"])
-def health_check():
-    """
-    Liveness probe.
-    Should be extremely light and always return healthy
-    unless the app process is completely broken.
-    """
-    return {
-        "status": "UP",
-        "service": "tubedash",
-        "uptime": f"{int(time.time() - start_time)}s"
-    }, 200
-
 @app.get("/health", status_code=200)
 def health_check():
     """
@@ -167,4 +154,5 @@ async def logout(request: Request, response: RedirectResponse):
     response = RedirectResponse(url="/")
     response.delete_cookie("user")
     return response
+
 
