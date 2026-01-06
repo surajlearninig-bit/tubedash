@@ -1,6 +1,9 @@
+import prometheus_client
+import counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 import os
 import redis
 import time
+from fastapi import Response
 from datetime import datetime
 from fastapi import FastAPI, Request, Depends, status
 from fastapi.templating import Jinja2Templates
