@@ -1,9 +1,9 @@
-import prometheus_client
-import counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from fastapi import Response
+import time
 import os
 import redis
 import time
-from fastapi import Response
 from datetime import datetime
 from fastapi import FastAPI, Request, Depends, status
 from fastapi.templating import Jinja2Templates
@@ -203,6 +203,7 @@ async def logout(request: Request, response: RedirectResponse):
     response = RedirectResponse(url="/")
     response.delete_cookie("user")
     return response
+
 
 
 
