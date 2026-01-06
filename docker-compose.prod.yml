@@ -12,6 +12,9 @@ services:
          -  DATABASE_URL=${DATABASE_URL}
        deploy:
             replicas: 4
+       networks:
+         - tubedash
+         - moni
 
     nginx-lb:
        image: nginx:latest
@@ -22,12 +25,16 @@ services:
          - ./nginx.conf:/etc/nginx/nginx.conf:ro
        depends_on:
          - tubedash-app
+       networks:
+         - tubedash
 
     redis-cache:
        image: "redis:alpine"
        restart:  unless-stopped
        volumes:
          - ./redis_data:/data
+       networks:
+         - tubedash
 
     postgres-db:
         image: postgres:13 
@@ -40,6 +47,8 @@ services:
          - ./postgres_data:/var/lib/postgresql/data
         ports:
          - "${DB_PORT}:5432"
+        networks:
+         - tubedash
 
     portainer:
       image: portainer/portainer-ce:latest
@@ -55,3 +64,8 @@ services:
 
 volumes:
   portainer_data:
+
+networks:
+  tubedash:
+  moni:
+    external: true
