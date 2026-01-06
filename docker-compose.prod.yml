@@ -68,4 +68,5 @@ volumes:
 networks:
   tubedash:
   moni:
+    name: moni_default
     external: true
