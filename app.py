@@ -19,6 +19,21 @@ from database import Base
 
 APP_START_TIME = time.time()
 
+# ===== PROMETHEUS METRICS =====
+
+HTTP_REQUEST_COUNT = Counter(
+    "http_requests_total",
+    "Total HTTP requests",
+    ["method", "path", "status"]
+)
+
+HTTP_REQUEST_LATENCY = Histogram(
+    "http_request_duration_seconds",
+    "HTTP request latency",
+    ["method", "path"]
+)
+
+
 
 # Initialize the FastAPI app
 app = FastAPI()
@@ -37,6 +52,37 @@ Base.metadata.create_all(bind=engine)
 # Set up templates and static files
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+@app.middleware("http")
+async def prometheus_middleware(request: Request, call_next):
+    start_time = time.time()
+
+    response = await call_next(request)
+
+    process_time = time.time() - start_time
+
+    # Ignore metrics endpoint itself
+    if request.url.path != "/metrics":
+        HTTP_REQUEST_COUNT.labels(
+            method=request.method,
+            path=request.url.path,
+            status=response.status_code
+        ).inc()
+
+        HTTP_REQUEST_LATENCY.labels(
+            method=request.method,
+            path=request.url.path
+        ).observe(process_time)
+
+    return response
+
+@app.get("/metrics")
+def metrics():
+    return Response(
+        generate_latest(),
+        media_type=CONTENT_TYPE_LATEST
+    )
+
 
 
 # Dependency to get the database session
@@ -157,5 +203,6 @@ async def logout(request: Request, response: RedirectResponse):
     response = RedirectResponse(url="/")
     response.delete_cookie("user")
     return response
+
 
 
