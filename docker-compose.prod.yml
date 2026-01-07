@@ -35,6 +35,7 @@ services:
          - ./redis_data:/data
        networks:
          - tubedash
+         - moni
 
     postgres-db:
         image: postgres:13 
@@ -49,6 +50,7 @@ services:
          - "${DB_PORT}:5432"
         networks:
          - tubedash
+         - moni
 
     portainer:
       image: portainer/portainer-ce:latest
