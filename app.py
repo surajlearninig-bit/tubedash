@@ -61,23 +61,31 @@ def force_error():
 @app.middleware("http")
 async def prometheus_middleware(request: Request, call_next):
     start_time = time.time()
+    status_code = 500  # default: agar exception aaye
 
-    response = await call_next(request)
+    try:
+        response = await call_next(request)
+        status_code = response.status_code
+        return response
 
-    process_time = time.time() - start_time
+    except Exception as exc:
+        # Exception ko FastAPI handle karega
+        raise exc
 
-    # Ignore metrics endpoint itself
-    if request.url.path != "/metrics":
-        HTTP_REQUEST_COUNT.labels(
-            method=request.method,
-            path=request.url.path,
-            status=response.status_code
-        ).inc()
+    finally:
+        process_time = time.time() - start_time
 
-        HTTP_REQUEST_LATENCY.labels(
-            method=request.method,
-            path=request.url.path
-        ).observe(process_time)
+        if request.url.path != "/metrics":
+            HTTP_REQUEST_COUNT.labels(
+                method=request.method,
+                path=request.url.path,
+                status=str(status_code)  # PROMETHEUS LABEL = STRING
+            ).inc()
+
+            HTTP_REQUEST_LATENCY.labels(
+                method=request.method,
+                path=request.url.path
+            ).observe(process_time)
 
     return response
 
@@ -208,6 +216,7 @@ async def logout(request: Request, response: RedirectResponse):
     response = RedirectResponse(url="/")
     response.delete_cookie("user")
     return response
+
 
 
 
