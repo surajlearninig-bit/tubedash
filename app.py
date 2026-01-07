@@ -53,6 +53,11 @@ Base.metadata.create_all(bind=engine)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+@app.get("/force-error")
+def force_error():
+    raise Exception("Test error")
+
+
 @app.middleware("http")
 async def prometheus_middleware(request: Request, call_next):
     start_time = time.time()
@@ -203,6 +208,7 @@ async def logout(request: Request, response: RedirectResponse):
     response = RedirectResponse(url="/")
     response.delete_cookie("user")
     return response
+
 
 
 
