@@ -15,6 +15,14 @@ from database import SessionLocal, engine
 import uuid
 from sqlalchemy import create_engine
 from database import Base
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+
+logger = logging.getLogger("tubedash")
 
 
 APP_START_TIME = time.time()
@@ -55,7 +63,9 @@ templates = Jinja2Templates(directory="templates")
 
 @app.get("/force-error")
 def force_error():
+    logger.error("Force error endpoint triggered")
     raise Exception("Test error")
+
 
 
 @app.middleware("http")
@@ -68,9 +78,10 @@ async def prometheus_middleware(request: Request, call_next):
         status_code = response.status_code
         return response
 
-    except Exception as exc:
-        # Exception ko FastAPI handle karega
-        raise exc
+   except Exception as exc:
+    logger.exception(f"Unhandled exception on path {request.url.path}")
+    raise exc
+
 
     finally:
         process_time = time.time() - start_time
@@ -216,6 +227,7 @@ async def logout(request: Request, response: RedirectResponse):
     response = RedirectResponse(url="/")
     response.delete_cookie("user")
     return response
+
 
 
 
