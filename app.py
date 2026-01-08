@@ -78,10 +78,9 @@ async def prometheus_middleware(request: Request, call_next):
         status_code = response.status_code
         return response
 
-   except Exception as exc:
-    logger.exception(f"Unhandled exception on path {request.url.path}")
-    raise exc
-
+    except Exception as exc:
+        logger.exception(f"Unhandled exception on path {request.url.path}")
+        raise exc
 
     finally:
         process_time = time.time() - start_time
@@ -99,6 +98,7 @@ async def prometheus_middleware(request: Request, call_next):
             ).observe(process_time)
 
     return response
+
 
 @app.get("/metrics")
 def metrics():
@@ -227,6 +227,7 @@ async def logout(request: Request, response: RedirectResponse):
     response = RedirectResponse(url="/")
     response.delete_cookie("user")
     return response
+
 
 
 
